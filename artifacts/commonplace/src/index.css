@@ -1,0 +1,218 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--card-border));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-popover-border: hsl(var(--popover-border));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-border: var(--primary-border);
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-secondary-border: var(--secondary-border);
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-muted-border: var(--muted-border);
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-accent-border: var(--accent-border);
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-destructive-border: var(--destructive-border);
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-primary-border: var(--sidebar-primary-border);
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-accent-border: var(--sidebar-accent-border);
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+  --font-sans: var(--app-font-sans);
+  --font-serif: var(--app-font-serif);
+  --font-mono: var(--app-font-mono);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* LIGHT MODE — warm cream + deep charcoal + punchy orange */
+:root {
+  --button-outline: rgba(0,0,0,.10);
+  --badge-outline: rgba(0,0,0,.05);
+  --opaque-button-border-intensity: -8;
+  --elevate-1: rgba(0,0,0,.03);
+  --elevate-2: rgba(0,0,0,.08);
+
+  /* Warm cream background */
+  --background: 42 33% 96%;
+  --foreground: 20 14% 10%;
+
+  --border: 35 20% 82%;
+  --card: 40 30% 99%;
+  --card-foreground: 20 14% 10%;
+  --card-border: 35 20% 88%;
+
+  --sidebar: 20 14% 10%;
+  --sidebar-foreground: 40 25% 90%;
+  --sidebar-border: 20 10% 18%;
+  --sidebar-primary: 22 90% 55%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 20 10% 18%;
+  --sidebar-accent-foreground: 40 25% 90%;
+  --sidebar-ring: 22 90% 55%;
+
+  --popover: 40 30% 99%;
+  --popover-foreground: 20 14% 10%;
+  --popover-border: 35 20% 88%;
+
+  /* Orange — the brand hero */
+  --primary: 22 90% 52%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 35 25% 92%;
+  --secondary-foreground: 20 14% 18%;
+
+  --muted: 38 20% 94%;
+  --muted-foreground: 20 8% 46%;
+
+  --accent: 22 90% 52%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+
+  --input: 35 20% 82%;
+  --ring: 22 90% 52%;
+
+  --chart-1: 22 90% 52%;
+  --chart-2: 142 60% 42%;
+  --chart-3: 210 70% 52%;
+  --chart-4: 48 92% 50%;
+  --chart-5: 280 65% 55%;
+
+  --app-font-sans: 'DM Sans', sans-serif;
+  --app-font-serif: Georgia, serif;
+  --app-font-mono: 'DM Mono', monospace;
+  --radius: 0.5rem;
+
+  /* Savings green */
+  --savings-green: 142 60% 38%;
+  --savings-green-bg: 142 50% 95%;
+
+  --shadow-sm: 0 1px 3px rgba(20,14,8,.08), 0 1px 2px rgba(20,14,8,.04);
+  --shadow: 0 2px 8px rgba(20,14,8,.10), 0 1px 3px rgba(20,14,8,.06);
+  --shadow-lg: 0 8px 24px rgba(20,14,8,.12), 0 2px 8px rgba(20,14,8,.08);
+
+  --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --secondary-border: hsl(from hsl(var(--secondary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --muted-border: hsl(from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --sidebar-accent-border: hsl(from hsl(var(--sidebar-accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+}
+
+.dark {
+  --button-outline: rgba(255,255,255,.10);
+  --badge-outline: rgba(255,255,255,.05);
+  --opaque-button-border-intensity: 9;
+  --elevate-1: rgba(255,255,255,.04);
+  --elevate-2: rgba(255,255,255,.09);
+
+  --background: 20 14% 8%;
+  --foreground: 40 25% 92%;
+  --border: 20 10% 18%;
+  --card: 20 12% 11%;
+  --card-foreground: 40 25% 92%;
+  --card-border: 20 10% 20%;
+  --sidebar: 20 14% 6%;
+  --sidebar-foreground: 40 20% 85%;
+  --sidebar-border: 20 10% 14%;
+  --sidebar-primary: 22 90% 55%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 20 10% 16%;
+  --sidebar-accent-foreground: 40 20% 85%;
+  --sidebar-ring: 22 90% 55%;
+  --popover: 20 12% 11%;
+  --popover-foreground: 40 25% 92%;
+  --popover-border: 20 10% 20%;
+  --primary: 22 90% 55%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 20 10% 16%;
+  --secondary-foreground: 40 20% 85%;
+  --muted: 20 10% 14%;
+  --muted-foreground: 20 8% 55%;
+  --accent: 22 90% 55%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 65% 55%;
+  --destructive-foreground: 0 0% 100%;
+  --input: 20 10% 20%;
+  --ring: 22 90% 55%;
+  --chart-1: 22 90% 55%;
+  --chart-2: 142 55% 48%;
+  --chart-3: 210 65% 60%;
+  --chart-4: 48 90% 55%;
+  --chart-5: 280 60% 62%;
+
+  --savings-green: 142 55% 48%;
+  --savings-green-bg: 142 30% 14%;
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply font-sans antialiased bg-background text-foreground; }
+}
+
+/* Ticker animation */
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-animate { animation: ticker 35s linear infinite; }
+
+/* Stagger fade-in for product grids */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fadeInUp 0.35s ease forwards; }
+
+/* Product card hover lift */
+.product-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.product-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(20,14,8,.14);
+}
+
+@layer utilities {
+  input[type="search"]::-webkit-search-cancel-button { @apply hidden; }
+  .font-display { font-family: 'Bebas Neue', sans-serif; }
+  .font-mono-cp { font-family: 'DM Mono', monospace; }
+  .savings-badge {
+    background-color: hsl(var(--savings-green-bg));
+    color: hsl(var(--savings-green));
+  }
+}

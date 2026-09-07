@@ -1,0 +1,1178 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: CommonPlace API — smart essentials platform
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: products
+    description: Product catalog
+  - name: auth
+    description: Authentication
+  - name: users
+    description: User profiles
+  - name: cart
+    description: Cart operations
+  - name: orders
+    description: Order management
+  - name: subscriptions
+    description: Auto-refill subscriptions
+  - name: admin
+    description: Admin operations
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # ── Auth ──────────────────────────────────────────────────────────
+  /auth/register:
+    post:
+      operationId: registerUser
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterBody"
+      responses:
+        "200":
+          description: Registration request processed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /auth/verify:
+    post:
+      operationId: verifyEmail
+      tags: [auth]
+      summary: Verify email address with token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyEmailBody"
+      responses:
+        "200":
+          description: Email verified
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "400":
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: loginUser
+      tags: [auth]
+      summary: Login with email and password (web — session set via HttpOnly cookie)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/mobile-login:
+    post:
+      operationId: mobileLoginUser
+      tags: [auth]
+      summary: Login with email and password (mobile — bearer token returned in body)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logoutUser
+      tags: [auth]
+      summary: Logout current user
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [auth]
+      summary: Get currently authenticated user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ── User Profile ───────────────────────────────────────────────────
+  /users/profile:
+    get:
+      operationId: getUserProfile
+      tags: [users]
+      summary: Get current user profile
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+    put:
+      operationId: updateUserProfile
+      tags: [users]
+      summary: Update user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileBody"
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+
+  /users/recommendations:
+    get:
+      operationId: getUserRecommendations
+      tags: [users]
+      summary: Get AI-tailored product recommendations for the current user
+      responses:
+        "200":
+          description: Recommended products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  # ── Products ───────────────────────────────────────────────────────
+  /products:
+    get:
+      operationId: listProducts
+      tags: [products]
+      summary: List all products with optional search/filter
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: category
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: sponsored
+          in: query
+          schema:
+            type: boolean
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+            maximum: 100
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 24
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Product list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductListResponse"
+
+  /products/featured:
+    get:
+      operationId: getFeaturedProducts
+      tags: [products]
+      summary: Get featured/sponsored products for homepage spotlight
+      responses:
+        "200":
+          description: Featured products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /products/categories:
+    get:
+      operationId: listCategories
+      tags: [products]
+      summary: List all product categories with counts
+      responses:
+        "200":
+          description: Categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+
+  /products/{id}:
+    get:
+      operationId: getProduct
+      tags: [products]
+      summary: Get a single product by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /products/{id}/similar:
+    get:
+      operationId: getSimilarProducts
+      tags: [products]
+      summary: Get similar/alternative products
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Similar products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SimilarProduct"
+
+  # ── Orders ────────────────────────────────────────────────────────
+  /orders:
+    get:
+      operationId: listOrders
+      tags: [orders]
+      summary: List orders for current user
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 1
+            minimum: 1
+            maximum: 100
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 20
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Orders
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderListResponse"
+    post:
+      operationId: createOrder
+      tags: [orders]
+      summary: Create a new order (checkout)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderBody"
+      responses:
+        "201":
+          description: Order created with checkout URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderCheckoutResponse"
+
+  /orders/{id}:
+    get:
+      operationId: getOrder
+      tags: [orders]
+      summary: Get a single order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /orders/summary:
+    get:
+      operationId: getOrderSummary
+      tags: [orders]
+      summary: Get order statistics summary for dashboard
+      responses:
+        "200":
+          description: Summary stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderSummary"
+
+  # ── Subscriptions ─────────────────────────────────────────────────
+  /subscriptions:
+    get:
+      operationId: listSubscriptions
+      tags: [subscriptions]
+      summary: List auto-refill subscriptions for current user
+      responses:
+        "200":
+          description: Subscriptions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Subscription"
+    post:
+      operationId: createSubscription
+      tags: [subscriptions]
+      summary: Create an auto-refill subscription
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSubscriptionBody"
+      responses:
+        "201":
+          description: Subscription created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+
+  /subscriptions/{id}:
+    put:
+      operationId: updateSubscription
+      tags: [subscriptions]
+      summary: Update a subscription (skip, modify, cancel)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSubscriptionBody"
+      responses:
+        "200":
+          description: Updated subscription
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+    delete:
+      operationId: cancelSubscription
+      tags: [subscriptions]
+      summary: Cancel a subscription
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Cancelled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  # ── Admin ─────────────────────────────────────────────────────────
+  /admin/stats:
+    get:
+      operationId: getAdminStats
+      tags: [admin]
+      summary: Get admin dashboard statistics
+      responses:
+        "200":
+          description: Admin stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStats"
+
+  /admin/orders:
+    get:
+      operationId: listAdminOrders
+      tags: [admin]
+      summary: List all orders (admin)
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+            maximum: 100
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: All orders
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderListResponse"
+
+  /admin/products:
+    post:
+      operationId: createProduct
+      tags: [admin]
+      summary: Create a new product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProductBody"
+      responses:
+        "201":
+          description: Product created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /admin/products/{id}:
+    put:
+      operationId: updateProduct
+      tags: [admin]
+      summary: Update a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProductBody"
+      responses:
+        "200":
+          description: Updated product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required: [success]
+
+    # ── Auth ────────────────────────────────────────────────────────
+    RegisterBody:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        name:
+          type: string
+      required: [email, password, name]
+
+    LoginBody:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required: [email, password]
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+
+    VerifyEmailBody:
+      type: object
+      properties:
+        token:
+          type: string
+      required: [token]
+
+    LoginResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+      required: [user]
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+      required: [user, token]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+          enum: [user, admin]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, email, name, role, createdAt]
+
+    # ── User Profile ─────────────────────────────────────────────────
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        householdSize:
+          type: integer
+          nullable: true
+        hasKids:
+          type: boolean
+          nullable: true
+        kidsAges:
+          type: array
+          items:
+            type: integer
+          nullable: true
+        pets:
+          type: array
+          items:
+            type: string
+          nullable: true
+        preferences:
+          type: array
+          items:
+            type: string
+          nullable: true
+        budgetRange:
+          type: string
+          nullable: true
+        zipCode:
+          type: string
+          nullable: true
+        prefersBrands:
+          type: boolean
+          nullable: true
+        autoRefillMode:
+          type: string
+          enum: [auto, confirm]
+          nullable: true
+        notifyDaysBefore:
+          type: integer
+          nullable: true
+      required: [id, userId]
+
+    UpdateProfileBody:
+      type: object
+      properties:
+        householdSize:
+          type: integer
+          nullable: true
+        hasKids:
+          type: boolean
+          nullable: true
+        kidsAges:
+          type: array
+          items:
+            type: integer
+          nullable: true
+        pets:
+          type: array
+          items:
+            type: string
+          nullable: true
+        preferences:
+          type: array
+          items:
+            type: string
+          nullable: true
+        budgetRange:
+          type: string
+          nullable: true
+        zipCode:
+          type: string
+          nullable: true
+        prefersBrands:
+          type: boolean
+          nullable: true
+        autoRefillMode:
+          type: string
+          enum: [auto, confirm]
+          nullable: true
+        notifyDaysBefore:
+          type: integer
+          nullable: true
+
+    # ── Products ────────────────────────────────────────────────────
+    SimilarProduct:
+      type: object
+      properties:
+        brand:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+        savings:
+          type: string
+          nullable: true
+        imageUrl:
+          type: string
+          nullable: true
+      required: [brand, name, price]
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        category:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        price:
+          type: number
+        wasPrice:
+          type: number
+          nullable: true
+        bulkPrice:
+          type: number
+          nullable: true
+        badge:
+          type: string
+          nullable: true
+        badgeColor:
+          type: string
+          nullable: true
+        savings:
+          type: string
+          nullable: true
+        imageUrl:
+          type: string
+          nullable: true
+        keywords:
+          type: array
+          items:
+            type: string
+          nullable: true
+        similar:
+          type: array
+          items:
+            $ref: "#/components/schemas/SimilarProduct"
+          nullable: true
+        isSponsored:
+          type: boolean
+        isFeatured:
+          type: boolean
+        inStock:
+          type: boolean
+      required: [id, category, name, price, isSponsored, isFeatured, inStock]
+
+    ProductListResponse:
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [products, total, page, limit]
+
+    Category:
+      type: object
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        count:
+          type: integer
+        icon:
+          type: string
+          nullable: true
+      required: [slug, name, count]
+
+    # ── Orders ──────────────────────────────────────────────────────
+    OrderItem:
+      type: object
+      properties:
+        productId:
+          type: integer
+        name:
+          type: string
+        quantity:
+          type: integer
+        price:
+          type: number
+        imageUrl:
+          type: string
+          nullable: true
+      required: [productId, name, quantity, price]
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+          nullable: true
+        guestEmail:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [draft, pending, paid, fulfilling, shipped, delivered, cancelled]
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+        subtotal:
+          type: number
+        serviceFee:
+          type: number
+        total:
+          type: number
+        savings:
+          type: number
+          nullable: true
+        shippingAddress:
+          type: object
+          nullable: true
+          additionalProperties: true
+        stripeSessionId:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, status, items, subtotal, serviceFee, total, createdAt]
+
+    CreateOrderBody:
+      type: object
+      properties:
+        items:
+          type: array
+          minItems: 1
+          maxItems: 50
+          items:
+            type: object
+            properties:
+              productId:
+                type: integer
+                format: int32
+                minimum: 1
+              quantity:
+                type: integer
+                format: int32
+                minimum: 1
+                maximum: 999
+            required: [productId, quantity]
+        guestEmail:
+          type: string
+          nullable: true
+        autoRefill:
+          type: boolean
+        shippingAddress:
+          type: object
+          nullable: true
+          properties:
+            fullName:
+              type: string
+              maxLength: 100
+            line1:
+              type: string
+              maxLength: 200
+            line2:
+              type: string
+              maxLength: 200
+              nullable: true
+            city:
+              type: string
+              maxLength: 100
+            state:
+              type: string
+              maxLength: 50
+            zip:
+              type: string
+              maxLength: 20
+            phone:
+              type: string
+              maxLength: 30
+              nullable: true
+          required: [fullName, line1, city, state, zip]
+      required: [items]
+
+    OrderCheckoutResponse:
+      type: object
+      properties:
+        orderId:
+          type: integer
+        checkoutUrl:
+          type: string
+      required: [orderId, checkoutUrl]
+
+    OrderListResponse:
+      type: object
+      properties:
+        orders:
+          type: array
+          items:
+            $ref: "#/components/schemas/Order"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [orders, total, page, limit]
+
+    OrderSummary:
+      type: object
+      properties:
+        totalOrders:
+          type: integer
+        totalRevenue:
+          type: number
+        totalSavings:
+          type: number
+        averageOrderValue:
+          type: number
+        recentOrders:
+          type: array
+          items:
+            $ref: "#/components/schemas/Order"
+      required: [totalOrders, totalRevenue, totalSavings, averageOrderValue, recentOrders]
+
+    # ── Subscriptions ────────────────────────────────────────────────
+    Subscription:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        productId:
+          type: integer
+        productName:
+          type: string
+        productImageUrl:
+          type: string
+          nullable: true
+        quantity:
+          type: integer
+        interval:
+          type: string
+          enum: [2weeks, 1month, 2months, 3months]
+        mode:
+          type: string
+          enum: [auto, confirm]
+        nextDeliveryDate:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [pending_payment, active, paused, cancelled]
+        stripeSubscriptionId:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, userId, productId, productName, quantity, interval, mode, nextDeliveryDate, status, createdAt]
+
+    CreateSubscriptionBody:
+      type: object
+      properties:
+        productId:
+          type: integer
+          format: int32
+          minimum: 1
+        quantity:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+        interval:
+          type: string
+          enum: [2weeks, 1month, 2months, 3months]
+        mode:
+          type: string
+          enum: [auto, confirm]
+        notifyDaysBefore:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 30
+      required: [productId, quantity, interval, mode]
+
+    UpdateSubscriptionBody:
+      type: object
+      description: >
+        Fields for updating a subscription. `quantity`, `interval`, and `mode`
+        are billable terms and may only be changed when the subscription is in
+        `pending_payment` status. Attempting to change these fields on an
+        `active` or `paused` subscription will return a 422 error. To change
+        billable terms on an active or paused subscription, cancel it and create
+        a new one.
+      properties:
+        quantity:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          nullable: true
+        interval:
+          type: string
+          enum: [2weeks, 1month, 2months, 3months]
+          nullable: true
+        mode:
+          type: string
+          enum: [auto, confirm]
+          nullable: true
+        status:
+          type: string
+          enum: [active, paused, cancelled]
+          nullable: true
+
+    # ── Admin ────────────────────────────────────────────────────────
+    AdminStats:
+      type: object
+      properties:
+        totalOrders:
+          type: integer
+        totalRevenue:
+          type: number
+        totalUsers:
+          type: integer
+        totalProducts:
+          type: integer
+        activeSubscriptions:
+          type: integer
+        ordersToday:
+          type: integer
+        revenueToday:
+          type: number
+        topCategories:
+          type: array
+          items:
+            type: object
+            properties:
+              category:
+                type: string
+              count:
+                type: integer
+            required: [category, count]
+        recentOrders:
+          type: array
+          items:
+            $ref: "#/components/schemas/Order"
+      required: [totalOrders, totalRevenue, totalUsers, totalProducts, activeSubscriptions, ordersToday, revenueToday, topCategories, recentOrders]
+
+    CreateProductBody:
+      type: object
+      properties:
+        category:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        price:
+          type: number
+        wasPrice:
+          type: number
+          nullable: true
+        bulkPrice:
+          type: number
+          nullable: true
+        badge:
+          type: string
+          nullable: true
+        badgeColor:
+          type: string
+          nullable: true
+        savings:
+          type: string
+          nullable: true
+        imageUrl:
+          type: string
+          nullable: true
+        keywords:
+          type: array
+          items:
+            type: string
+          nullable: true
+        isSponsored:
+          type: boolean
+        isFeatured:
+          type: boolean
+        inStock:
+          type: boolean
+      required: [category, name, price, isSponsored, isFeatured, inStock]
